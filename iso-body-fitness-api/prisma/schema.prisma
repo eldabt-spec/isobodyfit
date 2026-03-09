@@ -1,0 +1,249 @@
+// prisma/schema.prisma
+// Iso-Body Fitness App - Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
+enum UserTier {
+  STUDIO
+  REMOTE
+}
+enum UserRole {
+  CLIENT
+  ADMIN
+}
+enum AssessmentType {
+  IN_PERSON
+  SELF_GUIDED
+}
+enum AssessmentStatus {
+  PENDING
+  APPROVED
+  MODIFIED
+  REJECTED
+}
+enum ProgramStatus {
+  INACTIVE
+  ACTIVE
+  ARCHIVED
+}
+enum ROMResult {
+  FULL
+  LIMITED
+  PAIN
+}
+enum PostType {
+  MEMBER
+  COACH
+  ACCOUNTABILITY
+  SUCCESS_STORY
+}
+// ─────────────────────────────────────────
+// USER & PROFILE
+// ─────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          UserRole  @default(CLIENT)
+  tier          UserTier  @default(REMOTE)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile         Profile?
+  assessments     Assessment[]
+  programs        Program[]
+  workoutLogs     WorkoutLog[]
+  communityPosts  CommunityPost[]
+  comments        Comment[]
+  likes           Like[]
+  notifications   Notification[]
+}
+model Profile {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goals            String[]
+  injuryHistory    String?
+  equipmentAccess  String[]
+  consentSigned    Boolean   @default(false)
+  consentSignedAt  DateTime?
+  dateOfBirth      DateTime?
+  phone            String?
+  avatarUrl        String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+// ─────────────────────────────────────────
+// ASSESSMENTS
+// ─────────────────────────────────────────
+model Assessment {
+  id                  String            @id @default(cuid())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type                AssessmentType
+  status              AssessmentStatus  @default(PENDING)
+  // In-person fields (populated by admin)
+  inhibitedMuscles    String[]
+  romLimitations      String[]
+  asymmetries         String[]
+  coachNotes          String?
+  // Self-assessment fields (populated by client)
+  mobilityResults     MobilityResult[]
+  // Review metadata
+  reviewedByAdminId   String?
+  reviewedAt          DateTime?
+  adminModNotes       String?
+  program             Program?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+model MobilityResult {
+  id            String      @id @default(cuid())
+  assessmentId  String
+  assessment    Assessment  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  testName      String
+  bodyRegion    String
+  result        ROMResult
+  userNotes     String?
+  createdAt     DateTime    @default(now())
+}
+// ─────────────────────────────────────────
+// PROGRAMS & EXERCISES
+// ─────────────────────────────────────────
+model Program {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessmentId  String         @unique
+  assessment    Assessment     @relation(fields: [assessmentId], references: [id])
+  status        ProgramStatus  @default(INACTIVE)
+  weekNumber    Int            @default(1)
+  activatedAt   DateTime?
+  archivedAt    DateTime?
+  blocks        ProgramBlock[]
+  workoutLogs   WorkoutLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+model ProgramBlock {
+  id          String            @id @default(cuid())
+  programId   String
+  program     Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  // Block type: ACTIVATION, INTEGRATION, STRENGTH, CONDITIONING
+  blockType   String
+  orderIndex  Int
+  exercises   ProgramExercise[]
+}
+model ProgramExercise {
+  id               String        @id @default(cuid())
+  blockId          String
+  block            ProgramBlock  @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  exerciseId       String
+  exercise         Exercise      @relation(fields: [exerciseId], references: [id])
+  sets             Int?
+  reps             Int?
+  timeUnderTension Int?          // seconds
+  restSeconds      Int?
+  coachingNotes    String?
+  progressionNote  String?
+  orderIndex       Int
+}
+model Exercise {
+  id               String            @id @default(cuid())
+  name             String            @unique
+  description      String?
+  videoUrl         String?
+  thumbnailUrl     String?
+  muscleGroups     String[]
+  equipment        String[]
+  isActive         Boolean           @default(true)
+  programExercises ProgramExercise[]
+  loggedSets       LoggedSet[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+// ─────────────────────────────────────────
+// WORKOUT LOGGING
+// ─────────────────────────────────────────
+model WorkoutLog {
+  id                 String      @id @default(cuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programId          String
+  program            Program     @relation(fields: [programId], references: [id])
+  completedAt        DateTime    @default(now())
+  durationMin        Int?
+  notes              String?
+  perceived_exertion Int?        // RPE 1-10
+  loggedSets         LoggedSet[]
+}
+model LoggedSet {
+  id            String     @id @default(cuid())
+  workoutLogId  String
+  workoutLog    WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  exerciseId    String
+  exercise      Exercise   @relation(fields: [exerciseId], references: [id])
+  setNumber     Int
+  repsCompleted Int?
+  weightLbs     Float?
+  timeSeconds   Int?
+  notes         String?
+}
+// ─────────────────────────────────────────
+// COMMUNITY
+// ─────────────────────────────────────────
+model CommunityPost {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  mediaUrl  String?
+  postType  PostType  @default(MEMBER)
+  isPinned  Boolean   @default(false)
+  comments  Comment[]
+  likes     Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+model Comment {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime      @default(now())
+}
+model Like {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@unique([postId, userId]) // one like per user per post
+}
+// ─────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // PROGRAM_ACTIVATED, REASSESSMENT_DUE, COACH_NOTE, NEW_POST
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?  // deep link route
+  createdAt DateTime @default(now())
+}

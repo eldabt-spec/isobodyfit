@@ -1,0 +1,40 @@
+{
+  "name": "iso-body-fitness-api",
+  "version": "1.0.0",
+  "description": "REST API for Iso-Body Fitness — coach-led MAT programming platform",
+  "type": "module",
+  "main": "src/server.ts",
+  "scripts": {
+    "build": "prisma generate",
+    "dev": "nodemon --exec tsx src/server.ts",
+    "start": "tsx src/server.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "serverless-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.3.5",
+    "nodemon": "^3.1.14",
+    "prisma": "^5.22.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

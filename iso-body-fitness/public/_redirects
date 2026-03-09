@@ -1,0 +1,4 @@
+# Proxy all API requests to the Netlify serverless function.
+# :splat captures everything after /api/ and appends it to the function path.
+# Status 200 = rewrite (URL stays the same in the browser).
+/api/*  /.netlify/functions/api/:splat  200

@@ -1,0 +1,30 @@
+# netlify.toml — Iso-Body Fitness API
+
+[build]
+  # Runs the "build" script in package.json, which calls prisma generate to
+  # produce the Prisma client before Netlify bundles and deploys the function.
+  # The DATABASE_URL environment variable must be set in the Netlify dashboard
+  # (Site settings → Environment variables) for Prisma to connect at runtime.
+  command   = "npm run build"
+  functions = "netlify/functions"
+
+[functions]
+  # Use esbuild to bundle each function.  esbuild understands TypeScript
+  # natively, so the function can import src/app.ts even though the file
+  # is listed as api.js.
+  node_bundler = "esbuild"
+
+  # Prisma's generated client ships native binaries that esbuild cannot bundle.
+  # Mark both the public and the internal package names as external so they are
+  # loaded from node_modules at runtime instead of being inlined.
+  external_node_modules = ["@prisma/client", ".prisma"]
+
+# ── Route rewrites ────────────────────────────────────────────────────────────
+# Send every request to the single api.js function.
+# Status 200 = rewrite (URL stays the same in the browser / client).
+# Express then dispatches internally to /api/auth, /api/members, etc.
+
+[[redirects]]
+  from   = "/*"
+  to     = "/.netlify/functions/api/:splat"
+  status = 200

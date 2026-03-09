@@ -1,0 +1,12 @@
+[build]
+  command         = "npm run build"
+  publish         = "dist"
+
+# Catch-all redirect for client-side routing.
+# Any path that doesn't match a real file is served index.html
+# with a 200 (not a 302) so the browser URL stays intact and
+# React Router handles the route on the client.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
