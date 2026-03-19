@@ -1,7 +1,8 @@
 {
   "name": "iso-body-fitness",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Marketing and onboarding frontend for the Iso-Body Fitness platform — React + Vite + Tailwind v4 SPA.",
   "type": "module",
   "scripts": {
     "dev": "vite",

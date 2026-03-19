@@ -1,0 +1,20 @@
+{
+  "name": "isobodyfit",
+  "version": "1.0.0",
+  "description": "Iso-Body Fitness — a coach-led MAT programming platform. Monorepo containing the React/Vite marketing frontend and the Express/Prisma REST API.",
+  "private": true,
+  "workspaces": [
+    "iso-body-fitness",
+    "iso-body-fitness-api"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=iso-body-fitness",
+    "dev:api": "npm run dev --workspace=iso-body-fitness-api",
+    "build:frontend": "npm run build --workspace=iso-body-fitness",
+    "build:api": "npm run build --workspace=iso-body-fitness-api",
+    "lint": "npm run lint --workspace=iso-body-fitness"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

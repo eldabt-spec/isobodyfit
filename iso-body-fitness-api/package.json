@@ -16,7 +16,7 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-  "keywords": [],
+  "keywords": ["fitness", "mat", "coaching", "api", "express", "prisma"],
   "author": "",
   "license": "ISC",
   "dependencies": {

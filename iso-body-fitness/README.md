@@ -1,16 +1,41 @@
-# React + Vite
+# iso-body-fitness (frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Marketing and onboarding SPA for the Iso-Body Fitness platform.
 
-Currently, two official plugins are available:
+**Stack:** React 19 · React Router 7 · Tailwind CSS v4 · Vite 6
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+For full project documentation (installation, API, deployment) see the [repository root README](../README.md).
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+cp .env.example .env          # configure API base URL
+npm install
+npm run dev                   # http://localhost:5173
+```
 
-## Expanding the ESLint configuration
+## Pages
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Route | Component | Description |
+|---|---|---|
+| `/` | `Home` | Landing page with hero, features overview |
+| `/how-it-works` | `HowItWorksPage` | Step-by-step platform walkthrough |
+| `/features` | `FeaturesPage` | Feature list |
+| `/community` | `CommunityPage` | Community section |
+| `/pricing` | `PricingPage` | Pricing tiers |
+
+An `<AssessmentModal>` is available on all pages and is triggered via `ModalContext`.
+
+## Build
+
+```bash
+npm run build    # outputs a single self-contained index.html to dist/
+```
+
+The build uses `vite-plugin-singlefile` to inline all JS/CSS into one HTML file — ideal for static hosting and Netlify.
+
+## Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:3000/api` | Base URL of the REST API |
